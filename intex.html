@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>炒货模拟器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        body {
+            background-color: #f5f5f5;
+        }
+        .app-container {
+            max-width: 420px;
+            margin: 0 auto;
+            background-color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .status-bar {
+            background-color: #1677ff;
+            color: white;
+            padding: 20px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .status-left {
+            font-size: 18px;
+            font-weight: 500;
+        }
+        .status-right {
+            text-align: right;
+            font-size: 16px;
+        }
+        .target-tip {
+            background-color: #e6f7ff;
+            color: #1890ff;
+            padding: 6px 16px;
+            font-size: 14px;
+            text-align: center;
+            border-bottom: 1px solid #91d5ff;
+        }
+        /* 大事件提示条样式 */
+        .event-tip {
+            background-color: #fff2e8;
+            color: #d4380d;
+            padding: 8px 16px;
+            font-size: 14px;
+            border-left: 4px solid #ff4d4f;
+            display: none;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #e8e8e8;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            font-size: 16px;
+            color: #666;
+            background-color: #fafafa;
+            cursor: pointer;
+        }
+        .tab.active {
+            color: #1677ff;
+            background-color: #fff;
+            border-bottom: 2px solid #1677ff;
+        }
+        .content {
+            flex: 1;
+            padding: 16px;
+        }
+        .goods-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .goods-item {
+            background-color: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .goods-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .goods-name {
+            font-size: 20px;
+            font-weight: 500;
+        }
+        .goods-price {
+            font-size: 18px;
+            color: #333;
+        }
+        .goods-change-up {
+            font-size: 16px;
+            color: #ff4d4f;
+        }
+        .goods-change-down {
+            font-size: 16px;
+            color: #52c41a;
+        }
+        .goods-change-zero {
+            font-size: 16px;
+            color: #666;
+        }
+        .goods-action {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .goods-quantity {
+            width: 60px;
+            height: 40px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 16px;
+        }
+        .btn-buy {
+            flex: 1;
+            height: 40px;
+            background-color: #1677ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .btn-next-month {
+            background-color: #52c41a;
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .btn-next-month:disabled {
+            background-color: #95de64;
+            cursor: not-allowed;
+        }
+        .warehouse-content {
+            display: none;
+        }
+        /* 通关/破产遮罩层 */
+        .result-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            padding: 20px;
+        }
+        .result-card {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 30px 20px;
+            width: 100%;
+            max-width: 350px;
+            text-align: center;
+        }
+        .result-title-win {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ff4d4f;
+            margin-bottom: 20px;
+        }
+        .result-title-lose {
+            font-size: 28px;
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .result-info {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        .btn-restart {
+            width: 100%;
+            height: 45px;
+            background-color: #1677ff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 17px;
+            font-weight: 500;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 通关/破产结果界面 -->
+        <div class="result-mask" id="resultMask">
+            <div class="result-card">
+                <div class="result-title-win" id="resultTitle">恭喜通关！</div>
+                <div class="result-info" id="resultDesc">已达成500万通关目标</div>
+                <div class="result-info" id="resultMonth">通关用时：X个月</div>
+                <div class="result-info" id="resultAsset">最终总资产：¥XXX</div>
+                <div class="result-info" id="resultRate">总收益率：XXX%</div>
+                <button class="btn-restart" onclick="restartGame()">重新开始游戏</button>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-left">
+                <div>第 <span id="current-month">1</span> 个月</div>
+                <div>总资产：¥<span id="total-assets">20,000</span></div>
+            </div>
+            <div class="status-right">
+                <div>现金：¥<span id="cash">20,000</span></div>
+            </div>
+        </div>
+
+        <!-- 通关目标提示 -->
+        <div class="target-tip">🎯 通关目标：总资产达到500万元</div>
+
+        <!-- 大事件提示条 -->
+        <div class="event-tip" id="eventTip"></div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('shop')">商店</div>
+            <div class="tab" onclick="switchTab('warehouse')">我的仓库</div>
+        </div>
+
+        <div class="content">
+            <div id="shop-content" class="shop-content">
+                <div class="goods-list" id="goods-list"></div>
+            </div>
+            <div id="warehouse-content" class="warehouse-content">
+                <div id="warehouse-list">仓库是空的</div>
+            </div>
+        </div>
+
+        <button class="btn-next-month" id="nextMonthBtn" onclick="nextMonth()">进入下个月 ➜</button>
+    </div>
+
+    <script>
+        // 游戏核心配置
+        const INIT_CASH = 20000; // 初始资金2万
+        const WIN_TARGET = 5000000; // 通关目标：500万
+        let month = 1;
+        let cash = INIT_CASH;
+        let isGameEnd = false; // 游戏是否结束（通关/破产）
+        // 仓库数据结构：存储数量+加权平均成本价
+        let warehouse = {};
+
+        // 商品配置：basePrice为第1个月原价，永久固定为涨跌幅计算基准
+        const goods = [
+            { name: "智能手机", type: "数码", basePrice: 6999, currentPrice: 6999, totalChange: 0.0 },
+            { name: "游戏电脑", type: "数码", basePrice: 8999, currentPrice: 8999, totalChange: 0.0 },
+            { name: "家用轿车", type: "汽车", basePrice: 78000, currentPrice: 78000, totalChange: 0.0 },
+            { name: "老城区房产", type: "房产", basePrice: 280000, currentPrice: 280000, totalChange: 0.0 },
+            { name: "黄金吊坠", type: "贵金属", basePrice: 3500, currentPrice: 3500, totalChange: 0.0 }
+        ];
+
+        // 突发事件配置
+        const events = [
+            { desc: "芯片极度缺货！数码大涨", type: "数码", effect: 80 },
+            { desc: "科技泡沫破裂！数码大跌", type: "数码", effect: -50 },
+            { desc: "油价飙升！汽车涨价", type: "汽车", effect: 40 },
+            { desc: "新能源补贴！汽车降价", type: "汽车", effect: -30 },
+            { desc: "旧城改造！房价暴涨", type: "房产", effect: 100 },
+            { desc: "楼市调控！房价下跌", type: "房产", effect: -40 },
+            { desc: "黄金暴涨！避险情绪拉满", type: "贵金属", effect: 70 },
+            { desc: "黄金抛售潮！大跌", type: "贵金属", effect: -40 }
+        ];
+
+        // 格式化数字为千分位整数
+        function formatNumber(num) {
+            return Math.round(num).toLocaleString('en-US');
+        }
+
+        // 检查游戏是否通关/破产（达到/未达到目标）
+        function checkGameStatus() {
+            let totalAssets = cash;
+            Object.keys(warehouse).forEach(name => {
+                const good = goods.find(g => g.name === name);
+                totalAssets += good.currentPrice * warehouse[name].quantity;
+            });
+
+            // 达到目标：通关显示
+            if (totalAssets >= WIN_TARGET) {
+                isGameEnd = true;
+                document.getElementById('resultTitle').innerText = '🎉 恭喜通关！';
+                document.getElementById('resultTitle').className = 'result-title-win';
+                document.getElementById('resultDesc').innerText = '已达成500万通关目标';
+                document.getElementById('resultMonth').innerText = `通关用时：${month}个月`;
+                document.getElementById('resultAsset').innerText = `最终总资产：¥${formatNumber(totalAssets)}`;
+                document.getElementById('resultRate').innerText = `总收益率：${((totalAssets - INIT_CASH)/INIT_CASH * 100).toFixed(1)}%`;
+                document.getElementById('resultMask').style.display = 'flex';
+                document.getElementById('nextMonthBtn').disabled = true;
+                return true;
+            }
+
+            // 未达到目标：破产显示
+            if (totalAssets <= 0) {
+                isGameEnd = true;
+                document.getElementById('resultTitle').innerText = '😥 游戏破产';
+                document.getElementById('resultTitle').className = 'result-title-lose';
+                document.getElementById('resultDesc').innerText = '未达成500万通关目标';
+                document.getElementById('resultMonth').innerText = `坚持时长：${month}个月`;
+                document.getElementById('resultAsset').innerText = `最终总资产：¥${formatNumber(totalAssets)}`;
+                document.getElementById('resultRate').innerText = `总亏损：${((INIT_CASH - totalAssets)/INIT_CASH * 100).toFixed(1)}%`;
+                document.getElementById('resultMask').style.display = 'flex';
+                document.getElementById('nextMonthBtn').disabled = true;
+                return true;
+            }
+
+            return false;
+        }
+
+        // 渲染商店商品列表
+        function renderGoodsList() {
+            const listEl = document.getElementById('goods-list');
+            listEl.innerHTML = '';
+            goods.forEach((item, index) => {
+                let changeClass = 'goods-change-zero';
+                if (item.totalChange > 0) changeClass = 'goods-change-up';
+                else if (item.totalChange < 0) changeClass = 'goods-change-down';
+                const changeText = item.totalChange > 0 ? `+${item.totalChange.toFixed(1)}%` : `${item.totalChange.toFixed(1)}%`;
+                
+                const itemEl = document.createElement('div');
+                itemEl.className = 'goods-item';
+                itemEl.innerHTML = `
+                    <div class="goods-header">
+                        <div class="goods-name">${item.name}</div>
+                        <div class="goods-price">¥${formatNumber(item.currentPrice)}</div>
+                    </div>
+                    <div class="${changeClass}">涨跌幅：${changeText}</div>
+                    <div class="goods-action">
+                        <input type="number" class="goods-quantity" value="1" min="1" id="quantity-${index}">
+                        <button class="btn-buy" onclick="buyGoods(${index})" ${isGameEnd ? 'disabled' : ''}>买入</button>
+                    </div>
+                `;
+                listEl.appendChild(itemEl);
+            });
+        }
+
+        // 渲染仓库页面（成本价、持仓盈亏）
+        function renderWarehouse() {
+            const listEl = document.getElementById('warehouse-list');
+            const items = Object.keys(warehouse);
+            if (items.length === 0) {
+                listEl.innerHTML = '仓库是空的';
+                return;
+            }
+            let html = '<div class="goods-list">';
+            items.forEach(name => {
+                const good = goods.find(g => g.name === name);
+                const { quantity, avgCost } = warehouse[name];
+                const marketValue = good.currentPrice * quantity;
+                const totalCost = avgCost * quantity;
+                const profit = marketValue - totalCost;
+                const profitRate = (profit / totalCost) * 100;
+
+                // 涨跌幅颜色
+                let changeClass = 'goods-change-zero';
+                if (good.totalChange > 0) changeClass = 'goods-change-up';
+                else if (good.totalChange < 0) changeClass = 'goods-change-down';
+                const changeText = good.totalChange > 0 ? `+${good.totalChange.toFixed(1)}%` : `${good.totalChange.toFixed(1)}%`;
+
+                // 盈亏颜色
+                let profitClass = 'goods-change-zero';
+                if (profit > 0) profitClass = 'goods-change-up';
+                else if (profit < 0) profitClass = 'goods-change-down';
+                const profitText = profit > 0 ? `+¥${formatNumber(profit)} (+${profitRate.toFixed(1)}%)` : `¥${formatNumber(profit)} (${profitRate.toFixed(1)}%)`;
+                
+                html += `
+                    <div class="goods-item">
+                        <div class="goods-header">
+                            <div class="goods-name">${name}</div>
+                            <div class="goods-price">x${quantity} | 市值 ¥${formatNumber(marketValue)}</div>
+                        </div>
+                        <div>成本价：¥${formatNumber(avgCost)} | 当前价：¥${formatNumber(good.currentPrice)}</div>
+                        <div class="${changeClass}">对标原价涨跌幅：${changeText}</div>
+                        <div class="${profitClass}">持仓盈亏：${profitText}</div>
+                        <div class="goods-action">
+                            <input type="number" class="goods-quantity" value="1" min="1" max="${quantity}" id="sell-quantity-${name}">
+                            <button class="btn-buy" onclick="sellGoods('${name}')" ${isGameEnd ? 'disabled' : ''}>卖出</button>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            listEl.innerHTML = html;
+        }
+
+        // 更新顶部状态栏数据
+        function updateStatus() {
+            document.getElementById('current-month').textContent = month;
+            document.getElementById('cash').textContent = formatNumber(cash);
+            // 总资产=现金+仓库商品当前市值
+            let totalAssets = cash;
+            Object.keys(warehouse).forEach(name => {
+                const good = goods.find(g => g.name === name);
+                totalAssets += good.currentPrice * warehouse[name].quantity;
+            });
+            document.getElementById('total-assets').textContent = formatNumber(totalAssets);
+        }
+
+        // 买入商品（加权平均成本计算+资金不足优化提醒）
+        function buyGoods(index) {
+            if (isGameEnd) return;
+            const good = goods[index];
+            const quantityInput = document.getElementById(`quantity-${index}`);
+            const quantity = parseInt(quantityInput.value);
+            if (isNaN(quantity) || quantity < 1) {
+                alert('请输入有效的购买数量');
+                return;
+            }
+            const buyPrice = good.currentPrice;
+            const totalCost = buyPrice * quantity;
+
+            // 资金不足明确提醒
+            if (totalCost > cash) {
+                alert(`现金不足！\n当前可用现金：¥${formatNumber(cash)}\n本次购买所需：¥${formatNumber(totalCost)}\n差额：¥${formatNumber(totalCost - cash)}`);
+                return;
+            }
+
+            // 计算加权平均成本
+            if (warehouse[good.name]) {
+                // 已有持仓，更新平均成本
+                const oldQuantity = warehouse[good.name].quantity;
+                const oldAvgCost = warehouse[good.name].avgCost;
+                const newQuantity = oldQuantity + quantity;
+                const newAvgCost = Math.round((oldQuantity * oldAvgCost + totalCost) / newQuantity);
+                warehouse[good.name] = { quantity: newQuantity, avgCost: newAvgCost };
+            } else {
+                // 首次买入，直接记录
+                warehouse[good.name] = { quantity: quantity, avgCost: buyPrice };
+            }
+
+            // 扣减现金，更新界面
+            cash -= totalCost;
+            updateStatus();
+            renderWarehouse();
+            checkGameStatus();
+        }
+
+        // 卖出商品
+        function sellGoods(name) {
+            if (isGameEnd) return;
+            const good = goods.find(g => g.name === name);
+            const { quantity: maxQuantity, avgCost } = warehouse[name];
+            const quantity = parseInt(document.getElementById(`sell-quantity-${name}`).value);
+            if (isNaN(quantity) || quantity < 1 || quantity > maxQuantity) {
+                alert('请输入有效的卖出数量');
+                return;
+            }
+
+            const sellPrice = good.currentPrice;
+            const totalRevenue = sellPrice * quantity;
+            const profit = (sellPrice - avgCost) * quantity;
+
+            // 更新仓库数量
+            const newQuantity = maxQuantity - quantity;
+            if (newQuantity === 0) {
+                delete warehouse[name];
+            } else {
+                warehouse[name].quantity = newQuantity;
+            }
+
+            // 增加现金，更新界面
+            cash += totalRevenue;
+            updateStatus();
+            renderWarehouse();
+            checkGameStatus();
+        }
+
+        // 进入下个月（每月独立随机涨跌幅，不累加，自动切回商店页）
+        function nextMonth() {
+            if (isGameEnd) return;
+            month++;
+            const eventTipEl = document.getElementById('eventTip');
+            // 重置事件提示
+            eventTipEl.style.display = 'none';
+            
+            // 核心逻辑：每个月独立随机生成对标首月的涨跌幅，完全不累加上个月的数值
+            goods.forEach(g => {
+                // 生成±20%的独立随机涨跌幅，每月必动，无平盘
+                const monthlyRandomChange = (Math.random() * 0.4 - 0.2) * 100;
+                g.totalChange = monthlyRandomChange;
+            });
+
+            // 触发突发事件
+            const event = events[Math.floor(Math.random() * events.length)];
+            // 页面固定提示条
+            eventTipEl.innerText = `本月事件：${event.desc}`;
+            eventTipEl.style.display = 'block';
+            
+            // 叠加事件幅度到当月涨跌幅
+            goods.forEach(g => {
+                if (g.type === event.type) {
+                    g.totalChange += event.effect;
+                }
+                // 计算当月价格，自动取整无小数
+                g.currentPrice = Math.round(g.basePrice * (1 + g.totalChange / 100));
+            });
+
+            // 更新界面并自动切回商店页
+            renderGoodsList();
+            updateStatus();
+            renderWarehouse();
+            checkGameStatus();
+            switchTab('shop');
+        }
+
+        // 切换标签页
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            if (tab === 'shop') {
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.getElementById('shop-content').style.display = 'block';
+                document.getElementById('warehouse-content').style.display = 'none';
+            } else {
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('shop-content').style.display = 'none';
+                document.getElementById('warehouse-content').style.display = 'block';
+                renderWarehouse();
+            }
+        }
+
+        // 重新开始游戏
+        function restartGame() {
+            month = 1;
+            cash = INIT_CASH;
+            warehouse = {};
+            isGameEnd = false;
+            // 重置商品价格
+            goods.forEach(g => {
+                g.currentPrice = g.basePrice;
+                g.totalChange = 0.0;
+            });
+            // 重置界面
+            document.getElementById('resultMask').style.display = 'none';
+            document.getElementById('eventTip').style.display = 'none';
+            document.getElementById('nextMonthBtn').disabled = false;
+            renderGoodsList();
+            updateStatus();
+            renderWarehouse();
+            switchTab('shop');
+        }
+
+        // 初始化页面
+        renderGoodsList();
+        updateStatus();
+    </script>
+</body>
+</html>
