@@ -1,6 +1,5 @@
 # 炒货模拟器
-<img width="361" height="939" alt="1捕获" src="https://github.com/user-attachments/assets/81480425-918f-4091-81b3-0fd4ccc7cc29" />
-<img width="334" height="309" alt="捕获" src="https://github.com/user-attachments/assets/3ea0720f-8bcf-42bc-a683-ecb9a5f827ba" />
+![未命名](https://github.com/user-attachments/assets/0ea8d421-ecb4-41c1-8e37-622873a22605)
 
 
 🔥 10分钟通关的解压小游戏 🔥
