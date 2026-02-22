@@ -53,3 +53,5 @@
 
 ## 适合场景
 ✅ 摸鱼放松  ✅ 通勤解闷  ✅ 休息解压  ✅ 碎片时间消遣
+
+测试访问：[inpaintweb](https://sdlw7757.github.io/Speculator-Simulator)
