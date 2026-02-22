@@ -1,4 +1,6 @@
 # 炒货模拟器
+<img width="361" height="939" alt="1捕获" src="https://github.com/user-attachments/assets/81480425-918f-4091-81b3-0fd4ccc7cc29" />
+<img width="361" height="939" alt="1捕获" src="https://github.com/user-attachments/assets/4bd16ddf-27ff-4d2b-9e12-eaa1aaa8b4b9" />
 
 🔥 10分钟通关的解压小游戏 🔥
 一款轻量无压力的网页版模拟交易小游戏，低买高卖赚差价，轻松解压，10分钟即可完成一局挑战！
