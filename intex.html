@@ -270,11 +270,11 @@
 
         // 商品配置：basePrice为第1个月原价，永久固定为涨跌幅计算基准
         const goods = [
-            { name: "智能手机", type: "数码", basePrice: 6999, currentPrice: 6999, totalChange: 0.0 },
-            { name: "游戏电脑", type: "数码", basePrice: 8999, currentPrice: 8999, totalChange: 0.0 },
-            { name: "家用轿车", type: "汽车", basePrice: 78000, currentPrice: 78000, totalChange: 0.0 },
-            { name: "老城区房产", type: "房产", basePrice: 280000, currentPrice: 280000, totalChange: 0.0 },
-            { name: "黄金吊坠", type: "贵金属", basePrice: 3500, currentPrice: 3500, totalChange: 0.0 }
+            { name: "智能手机", type: "数码", basePrice: 6999, currentPrice: 6999, totalChange: 0.0, icon: "📱" },
+            { name: "游戏电脑", type: "数码", basePrice: 8999, currentPrice: 8999, totalChange: 0.0, icon: "💻" },
+            { name: "家用轿车", type: "汽车", basePrice: 78000, currentPrice: 78000, totalChange: 0.0, icon: "🚗" },
+            { name: "老城区房产", type: "房产", basePrice: 280000, currentPrice: 280000, totalChange: 0.0, icon: "🏠" },
+            { name: "黄金吊坠", type: "贵金属", basePrice: 3500, currentPrice: 3500, totalChange: 0.0, icon: "💎" }
         ];
 
         // 突发事件配置
@@ -296,23 +296,26 @@
 
         // 检查游戏是否通关/破产（达到/未达到目标）
         function checkGameStatus() {
+            // 计算总资产：现金 + 仓库商品当前市值
             let totalAssets = cash;
             Object.keys(warehouse).forEach(name => {
                 const good = goods.find(g => g.name === name);
                 totalAssets += good.currentPrice * warehouse[name].quantity;
             });
 
-            // 达到目标：通关显示
-            if (totalAssets >= WIN_TARGET) {
+            // 只有当现金（已卖掉所有商品后的资产）达到目标才算通关
+            if (cash >= WIN_TARGET) {
                 isGameEnd = true;
                 document.getElementById('resultTitle').innerText = '🎉 恭喜通关！';
                 document.getElementById('resultTitle').className = 'result-title-win';
                 document.getElementById('resultDesc').innerText = '已达成500万通关目标';
                 document.getElementById('resultMonth').innerText = `通关用时：${month}个月`;
-                document.getElementById('resultAsset').innerText = `最终总资产：¥${formatNumber(totalAssets)}`;
-                document.getElementById('resultRate').innerText = `总收益率：${((totalAssets - INIT_CASH)/INIT_CASH * 100).toFixed(1)}%`;
+                document.getElementById('resultAsset').innerText = `最终总资产：¥${formatNumber(cash)}`;
+                document.getElementById('resultRate').innerText = `总收益率：${((cash - INIT_CASH)/INIT_CASH * 100).toFixed(1)}%`;
                 document.getElementById('resultMask').style.display = 'flex';
                 document.getElementById('nextMonthBtn').disabled = true;
+                // 停止音乐
+                musicSystem.stopMusic();
                 return true;
             }
 
@@ -327,6 +330,8 @@
                 document.getElementById('resultRate').innerText = `总亏损：${((INIT_CASH - totalAssets)/INIT_CASH * 100).toFixed(1)}%`;
                 document.getElementById('resultMask').style.display = 'flex';
                 document.getElementById('nextMonthBtn').disabled = true;
+                // 停止音乐
+                musicSystem.stopMusic();
                 return true;
             }
 
@@ -347,7 +352,7 @@
                 itemEl.className = 'goods-item';
                 itemEl.innerHTML = `
                     <div class="goods-header">
-                        <div class="goods-name">${item.name}</div>
+                        <div class="goods-name">${item.icon} ${item.name}</div>
                         <div class="goods-price">¥${formatNumber(item.currentPrice)}</div>
                     </div>
                     <div class="${changeClass}">涨跌幅：${changeText}</div>
@@ -392,7 +397,7 @@
                 html += `
                     <div class="goods-item">
                         <div class="goods-header">
-                            <div class="goods-name">${name}</div>
+                            <div class="goods-name">${good.icon} ${name}</div>
                             <div class="goods-price">x${quantity} | 市值 ¥${formatNumber(marketValue)}</div>
                         </div>
                         <div>成本价：¥${formatNumber(avgCost)} | 当前价：¥${formatNumber(good.currentPrice)}</div>
