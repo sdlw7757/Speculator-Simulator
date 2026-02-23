@@ -19,12 +19,13 @@
             max-width: 420px;
             margin: 0 auto;
             background-color: #fff;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             position: relative;
-            overflow: hidden;
         }
+        
+
         .status-bar {
             background-color: #1677ff;
             color: white;
@@ -40,6 +41,63 @@
         .status-right {
             text-align: right;
             font-size: 16px;
+        }
+        
+        /* 手机端适配 */
+        @media (max-width: 600px) {
+            .status-bar {
+                padding: 10px 16px;
+            }
+            .status-left {
+                font-size: 14px;
+            }
+            .status-right {
+                font-size: 12px;
+            }
+            .content {
+                padding: 6px;
+                overflow-y: auto;
+                max-height: calc(100vh - 260px);
+            }
+            .goods-list {
+                gap: 4px;
+            }
+            .goods-item {
+                padding: 6px;
+                gap: 4px;
+            }
+            .goods-name {
+                font-size: 14px;
+            }
+            .goods-price {
+                font-size: 12px;
+            }
+            .goods-change-up,
+            .goods-change-down,
+            .goods-change-zero {
+                font-size: 10px;
+            }
+            .goods-quantity {
+                width: 35px;
+                height: 24px;
+                font-size: 10px;
+            }
+            .btn-buy {
+                height: 24px;
+                font-size: 10px;
+            }
+            .btn-next-month {
+                padding: 8px;
+                font-size: 12px;
+            }
+            .target-tip {
+                padding: 3px 16px;
+                font-size: 11px;
+            }
+            .tab {
+                padding: 8px 0;
+                font-size: 13px;
+            }
         }
         .target-tip {
             background-color: #e6f7ff;
