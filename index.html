@@ -13,15 +13,17 @@
         }
         body {
             background-color: #f5f5f5;
+            overflow: hidden;
         }
         .app-container {
             max-width: 420px;
             margin: 0 auto;
             background-color: #fff;
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             position: relative;
+            overflow: hidden;
         }
         .status-bar {
             background-color: #1677ff;
@@ -76,21 +78,21 @@
         }
         .content {
             flex: 1;
-            padding: 16px;
+            padding: 12px;
         }
         .goods-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
         }
         .goods-item {
             background-color: #fff;
             border: 1px solid #e8e8e8;
             border-radius: 8px;
-            padding: 16px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
         }
         .goods-header {
             display: flex;
@@ -98,54 +100,54 @@
             align-items: center;
         }
         .goods-name {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 500;
         }
         .goods-price {
-            font-size: 18px;
+            font-size: 16px;
             color: #333;
         }
         .goods-change-up {
-            font-size: 16px;
+            font-size: 14px;
             color: #ff4d4f;
         }
         .goods-change-down {
-            font-size: 16px;
+            font-size: 14px;
             color: #52c41a;
         }
         .goods-change-zero {
-            font-size: 16px;
+            font-size: 14px;
             color: #666;
         }
         .goods-action {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
         }
         .goods-quantity {
-            width: 60px;
-            height: 40px;
+            width: 50px;
+            height: 36px;
             border: 1px solid #d9d9d9;
             border-radius: 4px;
             text-align: center;
-            font-size: 16px;
+            font-size: 14px;
         }
         .btn-buy {
             flex: 1;
-            height: 40px;
+            height: 36px;
             background-color: #1677ff;
             color: white;
             border: none;
             border-radius: 4px;
-            font-size: 16px;
+            font-size: 14px;
             cursor: pointer;
         }
         .btn-next-month {
             background-color: #52c41a;
             color: white;
             border: none;
-            padding: 16px;
-            font-size: 18px;
+            padding: 14px;
+            font-size: 16px;
             font-weight: 500;
             cursor: pointer;
         }
@@ -398,11 +400,10 @@
                     <div class="goods-item">
                         <div class="goods-header">
                             <div class="goods-name">${good.icon} ${name}</div>
-                            <div class="goods-price">x${quantity} | 市值 ¥${formatNumber(marketValue)}</div>
+                            <div class="goods-price">x${quantity} | ¥${formatNumber(marketValue)}</div>
                         </div>
-                        <div>成本价：¥${formatNumber(avgCost)} | 当前价：¥${formatNumber(good.currentPrice)}</div>
-                        <div class="${changeClass}">对标原价涨跌幅：${changeText}</div>
-                        <div class="${profitClass}">持仓盈亏：${profitText}</div>
+                        <div>成本：¥${formatNumber(avgCost)} | 当前：¥${formatNumber(good.currentPrice)}</div>
+                        <div class="${changeClass}">涨跌幅：${changeText} | <span class="${profitClass}">盈亏：${profitText}</span></div>
                         <div class="goods-action">
                             <input type="number" class="goods-quantity" value="1" min="1" max="${quantity}" id="sell-quantity-${name}">
                             <button class="btn-buy" onclick="sellGoods('${name}')" ${isGameEnd ? 'disabled' : ''}>卖出</button>
